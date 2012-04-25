@@ -394,7 +394,7 @@ public final class Graphs {
                 if (!countOnly) {
                     AdjacencyList<V> cycle = new AdjacencyList<V>();
                     int cycleStart = ctx.pointStack.indexOf(start);
-                    int cycleEnd = ctx.pointStack.size() - 1; //pointStack.indexOf(vertexIndex);
+                    int cycleEnd = ctx.pointStack.size() - 1;
                     for (int i = cycleStart; i <= cycleEnd; i++) {
                         cycle.add(ctx.pointStack.get(i));
                     }
