@@ -5,7 +5,7 @@
     <groupId>niographs</groupId>
     <artifactId>niographs</artifactId>
     <packaging>jar</packaging>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>niographs</name>
     <url>http://code.google.com/p/niographs</url>
     <dependencies>
