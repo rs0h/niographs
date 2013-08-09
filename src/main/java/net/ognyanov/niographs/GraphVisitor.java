@@ -23,7 +23,8 @@ package net.ognyanov.niographs;
  * 
  * @param <V> The vertex type of the graph.
  */
-public interface GraphVisitor<V> {
+public interface GraphVisitor<V>
+{
     /**
      * Called before the start of visit.
      */

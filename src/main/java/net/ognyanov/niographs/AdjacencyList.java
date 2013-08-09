@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
  * @param <V> The vertex type.
  */
 public final class AdjacencyList<V>
-    extends LinkedHashSet<V> {
+    extends LinkedHashSet<V>
+{
     private static final long serialVersionUID = -107367584272648278L;
 }

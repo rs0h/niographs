@@ -24,37 +24,45 @@ package net.ognyanov.niographs;
  * @param <F> The type of the first component.
  * @param <S> The type of the second component.
  */
-public final class Pair<F, S> {
+public final class Pair<F, S>
+{
     private F first;
     private S second;
 
-    public Pair(F first, S second) {
+    public Pair(F first, S second)
+    {
         this.first = first;
         this.second = second;
     }
 
-    public Pair() {
+    public Pair()
+    {
         this(null, null);
     }
 
-    public F getFirst() {
+    public F getFirst()
+    {
         return first;
     }
 
-    public void setFirst(F first) {
+    public void setFirst(F first)
+    {
         this.first = first;
     }
 
-    public S getSecond() {
+    public S getSecond()
+    {
         return second;
     }
 
-    public void setSecond(S second) {
+    public void setSecond(S second)
+    {
         this.second = second;
     }
 
     @Override
-    public int hashCode() {
+    public int hashCode()
+    {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((first == null) ? 0 : first.hashCode());
@@ -63,7 +71,8 @@ public final class Pair<F, S> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (this == obj)
             return true;
         if (obj == null)

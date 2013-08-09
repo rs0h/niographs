@@ -22,9 +22,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
-public class GraphsTest {
+public class GraphsTest
+{
     @Test
-    public void test() {
+    public void test()
+    {
         int numCycles = 0;
         int numSCCs = 0;
         Graph<Integer> graph = new Graph<Integer>();
@@ -37,17 +39,25 @@ public class GraphsTest {
         graph.get(0).add(1);
         graph.get(1).add(0);
         graph.get(1).add(2);
+        graph.get(2).add(2);
         graph.get(2).add(3);
         graph.get(3).add(2);
         numSCCs = Graphs.countSCCs(graph);
         assertTrue(numSCCs == 2);
+        numCycles = Graphs.countSimpleCyclesN(graph);
+        assertTrue(numCycles == 3);
         numCycles = Graphs.countSimpleCyclesT(graph);
-        assertTrue(numCycles == 2);
-        numCycles = Graphs.countSimpleCyclesJ(graph);
-        assertTrue(numCycles == 2);
+        assertTrue(numCycles == 3);
         numCycles = Graphs.countSimpleCyclesSL(graph);
-        assertTrue(numCycles == 2);
+        assertTrue(numCycles == 3);
+        numCycles = Graphs.countSimpleCyclesT(graph);
+        assertTrue(numCycles == 3);
 
+        graph.get(0).add(1);
+        graph.get(1).add(0);
+        graph.get(1).add(2);
+        graph.get(2).add(3);
+        graph.get(3).add(2);
         graph.get(4).add(5);
         graph.get(5).add(4);
         graph.get(5).add(6);
@@ -55,29 +65,48 @@ public class GraphsTest {
         graph.get(7).add(6);
         numSCCs = Graphs.countSCCs(graph);
         assertTrue(numSCCs == 4);
-        numCycles = Graphs.countSimpleCyclesT(graph);
-        assertTrue(numCycles == 4);
         numCycles = Graphs.countSimpleCyclesJ(graph);
-        assertTrue(numCycles == 4);
+        assertTrue(numCycles == 5);
         numCycles = Graphs.countSimpleCyclesSL(graph);
-        assertTrue(numCycles == 4);
+        assertTrue(numCycles == 5);
+        numCycles = Graphs.countSimpleCyclesN(graph);
+        assertTrue(numCycles == 5);
+        numCycles = Graphs.countSimpleCyclesT(graph);
+        assertTrue(numCycles == 5);
 
+        graph.get(0).add(1);
+        graph.get(1).add(0);
+        graph.get(1).add(2);
+        graph.get(2).add(3);
+        graph.get(3).add(2);
+        graph.get(4).add(5);
+        graph.get(5).add(4);
+        graph.get(5).add(6);
+        graph.get(6).add(7);
+        graph.get(7).add(6);
         graph.get(2).add(1);
         graph.get(7).add(0);
         numSCCs = Graphs.countSCCs(graph);
-        assertTrue(numSCCs == 1);
+        assertTrue(numSCCs == 3);
 
         for (int i = 0; i < dimension; i++) {
             AdjacencyList<Integer> adjSet = graph.get(i);
+            adjSet.clear();
             for (int j = 0; j < dimension; j++) {
                 adjSet.add(j);
             }
         }
-        numCycles = Graphs.countSimpleCyclesT(graph);
-        assertTrue(numCycles == 125673);
+
+        numSCCs = Graphs.countSCCs(graph);
+        assertTrue(numSCCs == 1);
+
         numCycles = Graphs.countSimpleCyclesJ(graph);
         assertTrue(numCycles == 125673);
         numCycles = Graphs.countSimpleCyclesSL(graph);
+        assertTrue(numCycles == 125673);
+        numCycles = Graphs.countSimpleCyclesN(graph);
+        assertTrue(numCycles == 125673);
+        numCycles = Graphs.countSimpleCyclesT(graph);
         assertTrue(numCycles == 125673);
 
         graph = new Graph<Integer>();
@@ -102,11 +131,13 @@ public class GraphsTest {
         graph.get(6).add(7);
         graph.get(7).add(6);
 
-        numCycles = Graphs.countSimpleCyclesT(graph);
-        assertTrue(numCycles == 203961);
         numCycles = Graphs.countSimpleCyclesJ(graph);
         assertTrue(numCycles == 203961);
         numCycles = Graphs.countSimpleCyclesSL(graph);
+        assertTrue(numCycles == 203961);
+        numCycles = Graphs.countSimpleCyclesN(graph);
+        assertTrue(numCycles == 203961);
+        numCycles = Graphs.countSimpleCyclesT(graph);
         assertTrue(numCycles == 203961);
     }
 }

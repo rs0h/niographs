@@ -65,16 +65,19 @@ import java.util.Stack;
  * @param <V> The vertex type.
  */
 public final class Graph<V>
-    extends LinkedHashMap<V, AdjacencyList<V>> {
+    extends LinkedHashMap<V, AdjacencyList<V>>
+{
     private static final long serialVersionUID     = 2984563501113161033L;
     static final String       IMPLEMENTATION_ERROR = "Implementation error!";
     static final String       NULL_ARGUMENT        = "Null argument.";
 
-    static final class StackEntry<V> {
+    static final class StackEntry<V>
+    {
         V           vertex;
         Iterator<V> successors;
 
-        StackEntry(V vertex, Iterator<V> successors) {
+        StackEntry(V vertex, Iterator<V> successors)
+        {
             this.vertex = vertex;
             this.successors = successors;
         }
@@ -95,7 +98,8 @@ public final class Graph<V>
      * @param visitor The visitor to be used.
      * @param vertex The start vertex of the traversal.
      */
-    public void visitDepthFirst(GraphVisitor<V> visitor, V vertex) {
+    public void visitDepthFirst(GraphVisitor<V> visitor, V vertex)
+    {
         if (visitor == null || vertex == null) {
             throw new IllegalArgumentException(NULL_ARGUMENT);
         }
@@ -122,7 +126,8 @@ public final class Graph<V>
      * 
      * @param visitor The visitor to be used.
      */
-    public void visitDepthFirst(GraphVisitor<V> visitor) {
+    public void visitDepthFirst(GraphVisitor<V> visitor)
+    {
         if (visitor == null) {
             throw new IllegalArgumentException(NULL_ARGUMENT);
         }
@@ -149,7 +154,8 @@ public final class Graph<V>
 
     }
 
-    private boolean doVisitDepthFirst(GraphVisitor<V> visitor, V vertex) {
+    private boolean doVisitDepthFirst(GraphVisitor<V> visitor, V vertex)
+    {
         boolean visitorIsDone = false;
         visitor.preVisit(vertex);
         visitorIsDone = visitor.isDone();
@@ -205,7 +211,8 @@ public final class Graph<V>
      * @param visitor The visitor to be used.
      * @param vertex The start vertex of the traversal.
      */
-    public void visitBreadthFirst(GraphVisitor<V> visitor, V vertex) {
+    public void visitBreadthFirst(GraphVisitor<V> visitor, V vertex)
+    {
         if (visitor == null || vertex == null) {
             throw new IllegalArgumentException(NULL_ARGUMENT);
         }
@@ -237,7 +244,8 @@ public final class Graph<V>
      * 
      * @param visitor The visitor to be used.
      */
-    public void visitBreadthFirst(GraphVisitor<V> visitor) {
+    public void visitBreadthFirst(GraphVisitor<V> visitor)
+    {
         if (visitor == null) {
             throw new IllegalArgumentException(NULL_ARGUMENT);
         }
@@ -268,7 +276,8 @@ public final class Graph<V>
         }
     }
 
-    private boolean doVisitBreadthFirst(GraphVisitor<V> visitor) {
+    private boolean doVisitBreadthFirst(GraphVisitor<V> visitor)
+    {
         boolean visitorIsDone = false;
         do {
             V vertex = queue.remove();

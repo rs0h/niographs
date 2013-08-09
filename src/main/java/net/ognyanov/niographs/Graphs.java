@@ -38,22 +38,40 @@ import java.util.Stack;
  * E is the number of edges in the graph.<br>
  * &nbsp;&nbsp;&nbsp;&nbsp;
  * Worst case time complexity of the algorithms for finding 
- * cycles in graphs is: O(VEC) for the Tarjan's algorithm, 
- * O(((V+E)C) for the Johnson's algorithm and O(V+EC) for 
- * the Szwarcfiter and Lauer's algorithm where C is the number
- * of the simple cycles in the graph. Worst case performance 
- * however is achieved only for graphs with special structure, 
- * so on practical workloads an algorithm with higher worst case
- * complexity may well outperform an algorithm with lower 
- * worst case complexity. Note also that "administrative costs"
- * of algorithms with better worst case performance are higher.
- * Also higher is their memory cost (which is in all 3
- * cases O(V+E)). In my experience so far Johnson's algorithm
- * seems to have best overall performance but this observation 
- * is workload-dependent and possibly implementation-dependent.
+ * cycles in graphs is: 
+ * <ol>
+ * <li> Tiernan - O(V.const^V)</li>
+ * <li> Tarjan - O(VEC)</li>
+ * <li> Johnson - O(((V+E)C) </li>
+ * <li> Szwarcfiter and Lauer - O(V+EC) </li>
+ * </ol>
+ * where C is the number of the simple cycles in the graph.<p> 
+ * &nbsp;&nbsp;&nbsp;&nbsp;
+ * Worst case performance is achieved only for graphs with
+ * special structure, so on practical workloads an algorithm
+ * with higher worst case complexity may outperform an algorithm
+ * with lower worst case complexity. Note also that 
+ * "administrative costs"  of algorithms with better worst 
+ * case performance are higher. Also higher is their memory cost
+ * (which is in all cases O(V+E)).<p>
+ * &nbsp;&nbsp;&nbsp;&nbsp;
+ * My own workloads have typically several thousand nodes and up 
+ * to ten thousand simple cycles. On these workloads the algorithms 
+ * score by performance (best to worst) so :
+ * <ol>
+ * <li> Szwarcfiter and Lauer</li>
+ * <li> Tarjan </li>
+ * <li> Johnson </li>
+ * <li> Tiernan - often by an order of magnitude slower than the rest</li>
+ * </ol>
  * <p>
  * <b>Literature:</b><br>
  * <ol>
+ * <li>
+ * J.C.Tiernan An Efficient Search Algorithm Find the Elementary
+ * Circuits of a Graph., Communications of the ACM, V13, 12,
+ * (1970), pp. 722 - 726.
+ * </li>
  * <li>
  * R.Tarjan, Depth-first search and linear graph algorithms.,
  * SIAM J. Comput. 1 (1972), pp. 146-160. 
@@ -83,23 +101,35 @@ import java.util.Stack;
  * </li>
  * </ol>
  */
-public final class Graphs {
+public final class Graphs
+{
+    private static final int EC1 = 1;
+    private static final int EC2 = 2;
+    private static final int EC3 = 3;
+    private static final int EC4 = 4;
+    private static final int EC5 = 5;
+    private static final int EC6 = 6;
+
     private static final class Numerator<T>
-        implements GraphVisitor<T> {
+        implements GraphVisitor<T>
+    {
         private Map<Integer, T> iToV  = new HashMap<Integer, T>();
         private Map<T, Integer> vToI  = new HashMap<T, Integer>();
         private int             index = 0;
 
-        public Numerator(Map<Integer, T> iToV, Map<T, Integer> vToI) {
+        public Numerator(Map<Integer, T> iToV, Map<T, Integer> vToI)
+        {
             this.iToV = iToV;
             this.vToI = vToI;
         }
 
-        public void startVisit() {
+        public void startVisit()
+        {
             index = 0;
         }
 
-        public void preVisit(T vertex) {
+        public void preVisit(T vertex)
+        {
             if (iToV != null) {
                 iToV.put(index, vertex);
             }
@@ -109,67 +139,91 @@ public final class Graphs {
             index++;
         }
 
-        public void postVisit(T vertex) {
+        public void postVisit(T vertex)
+        {
         }
 
-        public boolean isDone() {
+        public boolean isDone()
+        {
             return false;
         }
 
-        public void endVisit() {
+        public void endVisit()
+        {
         }
 
     }
 
     private static final class InDegreeCalculator<T>
-        implements GraphVisitor<T> {
+        implements GraphVisitor<T>
+    {
         private Graph<T>        graph;
         private Map<T, Integer> inDegrees;
 
-        public InDegreeCalculator(Graph<T> graph) {
+        public InDegreeCalculator(Graph<T> graph)
+        {
             this.graph = graph;
         }
 
-        public Map<T, Integer> getInDegrees() {
+        public Map<T, Integer> getInDegrees()
+        {
             return inDegrees;
         }
 
-        public void startVisit() {
+        public void startVisit()
+        {
             inDegrees = new HashMap<T, Integer>();
             for (T t : graph.keySet()) {
                 inDegrees.put(t, 0);
             }
         }
 
-        public void preVisit(T vertex) {
+        public void preVisit(T vertex)
+        {
             for (T t : graph.get(vertex)) {
                 inDegrees.put(t, inDegrees.get(t) + 1);
             }
         }
 
-        public void postVisit(T vertex) {
+        public void postVisit(T vertex)
+        {
         }
 
-        public boolean isDone() {
+        public boolean isDone()
+        {
             return false;
         }
 
-        public void endVisit() {
+        public void endVisit()
+        {
         }
     }
 
     // Data context for the Tarjan's strongly connected components algorithm.
-    private static final class SCCsCtxT<T> {
+    private static final class SCCsCtxT<T>
+    {
         int                    numSCCs    = 0;
         List<AdjacencyList<T>> SCCs       = new LinkedList<AdjacencyList<T>>();
         int                    index      = 0;
         Map<T, Integer>        indexMap   = new HashMap<T, Integer>();
         Map<T, Integer>        lowlinkMap = new HashMap<T, Integer>();
         Stack<T>               stack      = new Stack<T>();
+        Set<T>                 stackSet   = new HashSet<T>();
+    }
+
+    // Data context for the Tiernan's simple cycles algorithm.
+    private static final class CyclesCtxN<T>
+    {
+        int                    numCycles = 0;
+        List<AdjacencyList<T>> cycles    = new LinkedList<AdjacencyList<T>>();
+        List<T>                path      = new ArrayList<T>();
+        Set<T>                 pathSet   = new HashSet<T>();
+        Map<T, Set<T>>         blocked   = new HashMap<T, Set<T>>();
     }
 
     // Data context for the Tarjahn's simple cycles algorithm.
-    private static final class CyclesCtxT<T> {
+    private static final class CyclesCtxT<T>
+    {
         int                    numCycles   = 0;
         List<AdjacencyList<T>> cycles      = new LinkedList<AdjacencyList<T>>();
         Set<T>                 marked      = new HashSet<T>();
@@ -178,7 +232,8 @@ public final class Graphs {
     }
 
     // Data context for the Johnson's simple cycles algorithm.
-    private static final class CyclesCtxJ<T> {
+    private static final class CyclesCtxJ<T>
+    {
         int                    numCycles = 0;
         List<AdjacencyList<T>> cycles    = new LinkedList<AdjacencyList<T>>();
         Map<Integer, T>        iToV      = new HashMap<Integer, T>();
@@ -187,7 +242,8 @@ public final class Graphs {
         Map<T, Set<T>>         bSets     = new HashMap<T, Set<T>>();
         Stack<T>               stack     = new Stack<T>();
 
-        CyclesCtxJ(Graph<T> graph) {
+        CyclesCtxJ(Graph<T> graph)
+        {
             GraphVisitor<T> numerator = new Numerator<T>(iToV, vToI);
             graph.visitDepthFirst(numerator);
             for (T t : graph.keySet()) {
@@ -197,7 +253,8 @@ public final class Graphs {
     }
 
     // Data context for the Schwarcfiter and Lauer's simple cycles algorithm.
-    private static final class CyclesCtxSL<T> {
+    private static final class CyclesCtxSL<T>
+    {
         int                          numCycles     = 0;
         List<AdjacencyList<T>>       cycles        =
                                                        new LinkedList<AdjacencyList<T>>();
@@ -211,7 +268,8 @@ public final class Graphs {
         boolean[]                    reach         = null;
         List<T>                      startVertices = new ArrayList<T>();
 
-        CyclesCtxSL(Graph<T> graph) {
+        CyclesCtxSL(Graph<T> graph)
+        {
             // prepare the S&L context
             removed = new HashMap<T, AdjacencyList<T>>();
             for (T t : graph.keySet()) {
@@ -247,86 +305,276 @@ public final class Graphs {
     }
 
     /**
-     * FInd all strongly connected components of a graph.
+     * Find all non-trivial strongly connected components of a graph.
      * 
      * @param <V> The vertex type.
      * @param graph The graph.
      * @return A list of strongly connected components. May be empty
      * but not null.
      */
-    public static <V> List<AdjacencyList<V>> findSCCs(Graph<V> graph) {
+    public static <V> List<AdjacencyList<V>> findSCCs(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
         SCCsCtxT<V> ctx = new SCCsCtxT<V>();
         for (V vertex : graph.keySet()) {
             if (!ctx.indexMap.containsKey(vertex)) {
-                doStronglyConnect(ctx, graph, vertex, false);
+                doStronglyConnect(ctx, graph, vertex, false, false);
             }
         }
         return ctx.SCCs;
     }
 
     /**
-     * Count the number of strongly connected components in a graph.
+     * Count the number of non-trivial strongly connected components in 
+     * a graph.
      * 
      * @param <V> The vertex type.
      * @param graph The graph.
      * @return The number of strongly connected components in the graph.
      */
-    public static <V> int countSCCs(Graph<V> graph) {
+    public static <V> int countSCCs(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
         SCCsCtxT<V> ctx = new SCCsCtxT<V>();
         for (V vertex : graph.keySet()) {
             if (!ctx.indexMap.containsKey(vertex)) {
-                doStronglyConnect(ctx, graph, vertex, true);
+                doStronglyConnect(ctx, graph, vertex, true, false);
+            }
+        }
+        return ctx.numSCCs;
+    }
+
+    /**
+     * Find all strongly connected components of a graph. This
+     * version of the method includes in the result trivial SCCs 
+     * consisting of a single node which participates in no cycles.
+     * 
+     * @param <V> The vertex type.
+     * @param graph The graph.
+     * @return A list of strongly connected components. May be empty
+     * but not null.
+     */
+    public static <V> List<AdjacencyList<V>> findAllSCCs(Graph<V> graph)
+    {
+        if (graph == null) {
+            throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
+        }
+        SCCsCtxT<V> ctx = new SCCsCtxT<V>();
+        for (V vertex : graph.keySet()) {
+            if (!ctx.indexMap.containsKey(vertex)) {
+                doStronglyConnect(ctx, graph, vertex, false, true);
+            }
+        }
+        return ctx.SCCs;
+    }
+
+    /**
+     * Count the number of non-trivial strongly connected components in 
+     * a graph. This version of the method counts trivial SCCs consisting
+     * of a single node which participates in no cycles.
+     * 
+     * @param <V> The vertex type.
+     * @param graph The graph.
+     * @return The number of strongly connected components in the graph.
+     */
+    public static <V> int countAllSCCs(Graph<V> graph)
+    {
+        if (graph == null) {
+            throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
+        }
+        SCCsCtxT<V> ctx = new SCCsCtxT<V>();
+        for (V vertex : graph.keySet()) {
+            if (!ctx.indexMap.containsKey(vertex)) {
+                doStronglyConnect(ctx, graph, vertex, true, true);
             }
         }
         return ctx.numSCCs;
     }
 
     private static <V> void doStronglyConnect(SCCsCtxT<V> ctx, Graph<V> graph,
-                                              V vertex, boolean countOnly) {
-        AdjacencyList<V> result = null;
-
+                                              V vertex, boolean countOnly,
+                                              boolean returnTrivial)
+    {
         ctx.indexMap.put(vertex, ctx.index);
         ctx.lowlinkMap.put(vertex, ctx.index);
         ctx.index++;
         ctx.stack.push(vertex);
+        ctx.stackSet.add(vertex);
 
-        Iterator<V> it = graph.get(vertex).iterator();
-        boolean gotSuccessors = it.hasNext();
-        while (it.hasNext()) {
-            V successor = it.next();
+        AdjacencyList<V> successors = graph.get(vertex);
+        for (V successor : successors) {
             if (!ctx.indexMap.containsKey(successor)) {
-                doStronglyConnect(ctx, graph, successor, false);
+                doStronglyConnect(ctx, graph, successor, countOnly,
+                    returnTrivial);
                 ctx.lowlinkMap.put(
                     vertex,
                     Math.min(ctx.lowlinkMap.get(vertex),
                         ctx.lowlinkMap.get(successor)));
             }
-            else if (ctx.stack.contains(successor)) {
+            else if (ctx.stackSet.contains(successor)) {
                 ctx.lowlinkMap.put(
                     vertex,
                     Math.min(ctx.lowlinkMap.get(vertex),
                         ctx.indexMap.get(successor)));
             }
         }
-        if (gotSuccessors
-                && ctx.lowlinkMap.get(vertex) == ctx.indexMap.get(vertex)) {
-            ctx.numSCCs++;
-            if (!countOnly) {
-                result = new AdjacencyList<V>();
-                V temp = null;
-                do {
-                    temp = ctx.stack.pop();
-                    result.add(temp);
-                } while (!vertex.equals(temp));
-                ctx.SCCs.add(result);
+        if (ctx.lowlinkMap.get(vertex).equals(ctx.indexMap.get(vertex))) {
+            AdjacencyList<V> result = new AdjacencyList<V>();
+            V temp = null;
+            do {
+                temp = ctx.stack.pop();
+                ctx.stackSet.remove(temp);
+                result.add(temp);
+            } while (!vertex.equals(temp));
+
+            boolean isTrivial = false;
+            if (result.size() == 1) {
+                V v = result.iterator().next();
+                if (!graph.get(v).contains(v)) {
+                    isTrivial = true;
+                }
+            }
+
+            if (returnTrivial || !isTrivial) {
+                ctx.numSCCs++;
+                if (!countOnly) {
+                    ctx.SCCs.add(result);
+                }
             }
         }
+    }
+
+    /**
+     * Find all simple cycles in a graph by the Ternian's algorithm.<p>
+     * <b>Implementation Note:</b><br>
+     * The vertex type must implement Comparable&lt;V&gt;.<br>
+     * 
+     * @param <V> The vertex type.
+     * @param graph The graph.
+     * @return A list of cycles.
+     */
+    public static <V> List<AdjacencyList<V>> findSimpleCyclesN(Graph<V> graph)
+    {
+        CyclesCtxN<V> ctx = new CyclesCtxN<V>();
+        for (V vertex : graph.keySet()) {
+            ctx.blocked.put(vertex, new HashSet<V>());
+        }
+        return doFindSimpleCyclesN(ctx, graph, false);
+    }
+
+    /**
+     * Count all simple cycles in a graph by the Ternian's algorithm.<p>
+     * <b>Implementation Note:</b><br>
+     * The vertex type must implement Comparable&lt;V&gt;.<br>
+     * 
+     * @param <V> The vertex type.
+     * @param graph The graph.
+     * @return A list of cycles.
+     */
+    public static <V> int countSimpleCyclesN(Graph<V> graph)
+    {
+        CyclesCtxN<V> ctx = new CyclesCtxN<V>();
+        for (V vertex : graph.keySet()) {
+            ctx.blocked.put(vertex, new HashSet<V>());
+        }
+        doFindSimpleCyclesN(ctx, graph, true);
+        return ctx.numCycles;
+    }
+
+    private static <V> List<AdjacencyList<V>> doFindSimpleCyclesN(CyclesCtxN<V> ctx,
+                                                                  Graph<V> graph,
+                                                                  boolean countOnly)
+    {
+        if (graph == null) {
+            throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
+        }
+        Iterator<V> iter = graph.keySet().iterator();
+        if (!iter.hasNext()) {
+            return ctx.cycles;
+        }
+
+        V startOfPath = null;
+        V endOfPath = null;
+        V temp = null;
+        int endIndex = 0;
+        int state = EC1;
+
+        loop: while (true) {
+            switch (state) {
+                case EC1: // initialize
+                    state = EC2;
+                    endOfPath = iter.next();
+                    ctx.path.add(endOfPath);
+                    ctx.pathSet.add(endOfPath);
+                    break;
+                case EC2: // path extension
+                    state = EC3;
+                    for (V n : graph.get(endOfPath)) {
+                        @SuppressWarnings("unchecked")
+                        int cmp = ((Comparable<V>) n)
+                            .compareTo(ctx.path.get(0));
+                        if ((cmp > 0) &&
+                                !ctx.pathSet.contains(n) &&
+                                !ctx.blocked.get(endOfPath).contains(n))
+                        {
+                            ctx.path.add(n);
+                            ctx.pathSet.add(n);
+                            endOfPath = n;
+                            state = EC2;
+                            break;
+                        }
+                    }
+                    break;
+                case EC3: // path confirmation
+                    state = EC4;
+                    startOfPath = ctx.path.get(0);
+                    if (graph.get(endOfPath).contains(startOfPath)) {
+                        if (!countOnly) {
+                            AdjacencyList<V> cycle = new AdjacencyList<V>();
+                            cycle.addAll(ctx.path);
+                            ctx.cycles.add(cycle);
+                        }
+                        ++ctx.numCycles;
+                    }
+                    break;
+                case EC4: // vertex closure
+                    state = EC5;
+                    if (ctx.path.size() > 1) {
+                        ctx.blocked.get(endOfPath).clear();
+                        endIndex = ctx.path.size() - 1;
+                        ctx.path.remove(endIndex);
+                        ctx.pathSet.remove(endOfPath);
+                        --endIndex;
+                        temp = endOfPath;
+                        endOfPath = ctx.path.get(endIndex);
+                        ctx.blocked.get(endOfPath).add(temp);
+                        state = EC2;
+                    }
+                    break;
+                case EC5:
+                    state = EC6;
+                    if (iter.hasNext()) {
+                        state = EC2;
+                        ctx.path.clear();
+                        ctx.pathSet.clear();
+                        endOfPath = iter.next();
+                        ctx.path.add(endOfPath);
+                        ctx.pathSet.add(endOfPath);
+                        for (V vt : ctx.blocked.keySet()) {
+                            ctx.blocked.get(vt).clear();
+                        }
+                    }
+                    break;
+                case EC6:
+                    break loop;
+            }
+        }
+
+        return ctx.cycles;
     }
 
     /**
@@ -338,7 +586,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return A list of cycles.
      */
-    public static <V> List<AdjacencyList<V>> findSimpleCyclesT(Graph<V> graph) {
+    public static <V> List<AdjacencyList<V>> findSimpleCyclesT(Graph<V> graph)
+    {
         CyclesCtxT<V> ctx = new CyclesCtxT<V>();
         return doFindSimpleCyclesT(ctx, graph, false);
     }
@@ -352,7 +601,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return The number of simple cycles in the graph.
      */
-    public static <V> int countSimpleCyclesT(Graph<V> graph) {
+    public static <V> int countSimpleCyclesT(Graph<V> graph)
+    {
         CyclesCtxT<V> ctx = new CyclesCtxT<V>();
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
@@ -363,7 +613,8 @@ public final class Graphs {
 
     private static <V> List<AdjacencyList<V>> doFindSimpleCyclesT(CyclesCtxT<V> ctx,
                                                                   Graph<V> graph,
-                                                                  boolean countOnly) {
+                                                                  boolean countOnly)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
@@ -378,7 +629,8 @@ public final class Graphs {
     }
 
     private static <V> boolean backtrackT(CyclesCtxT<V> ctx, Graph<V> graph,
-                                          V start, V vertex, boolean countOnly) {
+                                          V start, V vertex, boolean countOnly)
+    {
         boolean foundCycle = false;
         ctx.pointStack.push(vertex);
         ctx.marked.add(vertex);
@@ -394,7 +646,7 @@ public final class Graphs {
                 if (!countOnly) {
                     AdjacencyList<V> cycle = new AdjacencyList<V>();
                     int cycleStart = ctx.pointStack.indexOf(start);
-                    int cycleEnd = ctx.pointStack.size() - 1;
+                    int cycleEnd = ctx.pointStack.size() - 1; //pointStack.indexOf(vertexIndex);
                     for (int i = cycleStart; i <= cycleEnd; i++) {
                         cycle.add(ctx.pointStack.get(i));
                     }
@@ -426,7 +678,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return A list of cycles.
      */
-    public static <V> List<AdjacencyList<V>> findSimpleCyclesJ(Graph<V> graph) {
+    public static <V> List<AdjacencyList<V>> findSimpleCyclesJ(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
@@ -442,7 +695,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return The number of simple cycles in the graph.
      */
-    public static <V> int countSimpleCyclesJ(Graph<V> graph) {
+    public static <V> int countSimpleCyclesJ(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
@@ -453,7 +707,8 @@ public final class Graphs {
 
     private static <V> List<AdjacencyList<V>> doFindSimpleCyclesJ(CyclesCtxJ<V> ctx,
                                                                   Graph<V> graph,
-                                                                  boolean countOnly) {
+                                                                  boolean countOnly)
+    {
         int startIndex = 0;
         int size = graph.size();
         while (startIndex < size) {
@@ -480,7 +735,8 @@ public final class Graphs {
     private static <V> Pair<Integer, Graph<V>> minSCGraphJ(CyclesCtxJ<V> ctxJ,
                                                            Graph<V> graph,
                                                            int startIndex,
-                                                           boolean countOnly) {
+                                                           boolean countOnly)
+    {
         SCCsCtxT<V> ctxT = new SCCsCtxT<V>();
         for (V v : graph.keySet()) {
             int vIndex = ctxJ.vToI.get(v);
@@ -524,7 +780,8 @@ public final class Graphs {
     private static <V> void doStronglyConnectJ(CyclesCtxJ<V> ctxJ,
                                                SCCsCtxT<V> ctx, Graph<V> graph,
                                                int startIndex, int vertexIndex,
-                                               boolean countOnly) {
+                                               boolean countOnly)
+    {
         AdjacencyList<V> result = null;
 
         V vertex = ctxJ.iToV.get(vertexIndex);
@@ -557,7 +814,7 @@ public final class Graphs {
             }
         }
         if (gotSuccessors
-                && ctx.lowlinkMap.get(vertex) == ctx.indexMap.get(vertex)) {
+                && ctx.lowlinkMap.get(vertex).equals(ctx.indexMap.get(vertex))) {
             ctx.numSCCs++;
             if (!countOnly) {
                 result = new AdjacencyList<V>();
@@ -574,7 +831,8 @@ public final class Graphs {
     private static <V> boolean findCyclesInSCGJ(CyclesCtxJ<V> ctx,
                                                 int startIndex,
                                                 int vertexIndex, Graph<V> scg,
-                                                boolean countOnly) {
+                                                boolean countOnly)
+    {
         boolean foundCycle = false;
         V vertex = ctx.iToV.get(vertexIndex);
         ctx.stack.push(vertex);
@@ -613,7 +871,8 @@ public final class Graphs {
         return foundCycle;
     }
 
-    private static <V> void unblockJ(CyclesCtxJ<V> ctx, V vertex) {
+    private static <V> void unblockJ(CyclesCtxJ<V> ctx, V vertex)
+    {
         ctx.blocked.remove(vertex);
         Set<V> bSet = ctx.bSets.get(vertex);
         while (bSet.size() > 0) {
@@ -633,7 +892,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return A list of cycles.
      */
-    public static <V> List<AdjacencyList<V>> findSimpleCyclesSL(Graph<V> graph) {
+    public static <V> List<AdjacencyList<V>> findSimpleCyclesSL(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
@@ -649,7 +909,8 @@ public final class Graphs {
      * @param graph The graph.
      * @return The number of simple cycles in the graph.
      */
-    public static <V> int countSimpleCyclesSL(Graph<V> graph) {
+    public static <V> int countSimpleCyclesSL(Graph<V> graph)
+    {
         if (graph == null) {
             throw new IllegalArgumentException(Graph.NULL_ARGUMENT);
         }
@@ -660,7 +921,8 @@ public final class Graphs {
 
     private static <V> List<AdjacencyList<V>> doFindSimpleCyclesSL(CyclesCtxSL<V> ctx,
                                                                    Graph<V> graph,
-                                                                   boolean countOnly) {
+                                                                   boolean countOnly)
+    {
         for (V vertex : ctx.startVertices) {
             cycleSL(ctx, graph, ctx.vToI.get(vertex), 0, countOnly);
         }
@@ -668,7 +930,8 @@ public final class Graphs {
     }
 
     private static <V> boolean cycleSL(CyclesCtxSL<V> ctx, Graph<V> graph,
-                                       int v, int q, boolean CountOnly) {
+                                       int v, int q, boolean CountOnly)
+    {
         boolean foundCycle = false;
         V vV = ctx.iToV.get(v);
         ctx.marked.add(vV);
@@ -703,7 +966,7 @@ public final class Graphs {
                     int vIndex = ctx.stack.indexOf(vV);
                     int wIndex = ctx.stack.indexOf(wV);
                     AdjacencyList<V> cycle = new AdjacencyList<V>();
-                    for (int i = vIndex; i <= wIndex; i++) {
+                    for (int i = wIndex; i <= vIndex; i++) {
                         cycle.add(ctx.stack.elementAt(i));
                     }
                     ctx.cycles.add(cycle);
@@ -723,7 +986,8 @@ public final class Graphs {
     }
 
     private static <V> void noCycleSL(CyclesCtxSL<V> ctx, Graph<V> graph,
-                                      int x, int y) {
+                                      int x, int y)
+    {
         V xV = ctx.iToV.get(x);
         V yV = ctx.iToV.get(y);
 
@@ -734,13 +998,18 @@ public final class Graphs {
         axRemoved.add(yV);
     }
 
-    private static <V> void unmarkSL(CyclesCtxSL<V> ctx, Graph<V> graph, int x) {
+    private static <V> void unmarkSL(CyclesCtxSL<V> ctx, Graph<V> graph, int x)
+    {
         V xV = ctx.iToV.get(x);
         ctx.marked.remove(xV);
         Set<V> bx = ctx.bSets.get(xV);
         for (V yV : bx) {
+            AdjacencyList<V> ySucc = graph.get(yV);
             Set<V> ayRemoved = ctx.removed.get(yV);
             ayRemoved.remove(xV);
+            if (!ySucc.contains(xV)) {
+                System.err.println("ALARM!!!!");
+            }
             if (ctx.marked.contains(yV)) {
                 unmarkSL(ctx, graph, ctx.vToI.get(yV));
             }
