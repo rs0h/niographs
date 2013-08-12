@@ -791,7 +791,6 @@ public final class Graphs
         ctx.stack.push(vertex);
 
         Iterator<V> it = graph.get(vertex).iterator();
-        boolean gotSuccessors = it.hasNext();
         while (it.hasNext()) {
             V successor = it.next();
             int successorIndex = ctxJ.vToI.get(successor);
@@ -813,8 +812,7 @@ public final class Graphs
                         ctx.indexMap.get(successor)));
             }
         }
-        if (gotSuccessors
-                && ctx.lowlinkMap.get(vertex).equals(ctx.indexMap.get(vertex))) {
+        if (ctx.lowlinkMap.get(vertex).equals(ctx.indexMap.get(vertex))) {
             ctx.numSCCs++;
             if (!countOnly) {
                 result = new AdjacencyList<V>();
@@ -823,7 +821,15 @@ public final class Graphs
                     temp = ctx.stack.pop();
                     result.add(temp);
                 } while (!vertex.equals(temp));
-                ctx.SCCs.add(result);
+                if (result.size() == 1) {
+                    V v = result.iterator().next();
+                    if (graph.get(v).contains(v)) {
+                        ctx.SCCs.add(result);
+                    }
+                }
+                else {
+                    ctx.SCCs.add(result);
+                }
             }
         }
     }
