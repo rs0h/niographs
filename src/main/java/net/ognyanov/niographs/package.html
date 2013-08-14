@@ -2,10 +2,18 @@
 <html>
 <body>
     <p>This package contains implementation of algorithms for
-        enumeration of the simple cycles of a graph.</p>
-    <b>Performance Notes:</b>
-    <p>&nbsp;&nbsp;&nbsp;&nbsp; Worst case time complexity of the
-        algorithms for finding cycles in graphs is:
+        enumeration of the simple cycles of a directed or undirected
+        graph.</p>
+
+    <b>Implementation Note:</b><p> All the implementations work correctly
+    with loops but not with multiple edges.
+    </p>
+
+
+
+        <b>Performance Notes:</b>
+    <p>&nbsp;&nbsp;&nbsp;&nbsp; The worst case time complexity of
+        the algorithms for finding cycles in directed graphs is:
     <ol>
         <li>Tiernan - O(V.const^V)</li>
         <li>Tarjan - O(VEC)</li>
@@ -15,8 +23,8 @@
     where V is the number of vertices, E is the number of edges and C is
     the number of the simple cycles in the graph.
     </p>
-    <p>&nbsp;&nbsp;&nbsp;&nbsp; Worst case performance is achieved
-        only for graphs with special structure, so on practical
+    <p>&nbsp;&nbsp;&nbsp;&nbsp; The worst case performance is
+        achieved only for graphs with special structure, so on practical
         workloads an algorithm with higher worst case complexity may
         outperform an algorithm with lower worst case complexity. Note
         also that "administrative costs" of algorithms with better worst
@@ -32,6 +40,8 @@
         <li>Johnson</li>
         <li>Tiernan</li>
     </ol>
+    &nbsp;&nbsp;&nbsp;&nbsp;The worst case time complexity of the
+    Paton's algorithm for finding cycles in undirected graphs is O(V^3)
     </p>
     <b>Literature:</b>
     <br>
@@ -54,6 +64,10 @@
         <li>L.G.Bezem and J.van Leeuwen, Enumeration in graphs.,
             Technical report RUU-CS-87-7, University of Utrecht, The
             Netherlands, 1987.</li>
+        <li>K. Paton, An algorithm for finding a fundamental set of
+            cycles for an undirected linear graph, Comm. ACM 12 (1969),
+            pp. 514-518.</li>
+
     </ol>
 </body>
 </html>
