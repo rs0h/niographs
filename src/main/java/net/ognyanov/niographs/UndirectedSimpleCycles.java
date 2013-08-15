@@ -23,7 +23,7 @@ import org.jgrapht.UndirectedGraph;
 
 /**
  * A common interface for classes implementing algorithms
- * for enumeration of the simple cycles of an undirected graph.
+ * for finding a cycle basis of an undirected graph.
  *
  * @author Nikolay Ognyanov
  *
@@ -32,7 +32,7 @@ import org.jgrapht.UndirectedGraph;
 public interface UndirectedSimpleCycles<V, E>
 {
     /**
-     * Returns the graph on which the simple cycle
+     * Returns the graph on which the cycle basis
      * search algorithm is executed by this object.
      *
      * @return The graph.
@@ -40,7 +40,7 @@ public interface UndirectedSimpleCycles<V, E>
     UndirectedGraph<V, E> getGraph();
 
     /**
-     * Sets the graph on which the simple cycle
+     * Sets the graph on which the cycle basis
      * search algorithm is executed by this object.
      *
      * @throws IllegalArgumentException if the
@@ -49,13 +49,14 @@ public interface UndirectedSimpleCycles<V, E>
     void setGraph(UndirectedGraph<V, E> graph);
 
     /**
-     * Finds the simple cycles of the graph.<br/>
+     * Finds a cycle basis of the graph.<br/>
      * Note that the full algorithm is executed on
      * every call since the graph may have changed
      * between calls.
      *
-     * @return The list of all simple cycles.
-     * Possibly empty but never <code>null</code>.
+     * @return A list of cycles constituting a cycle
+     * basis for the graph. Possibly empty but never 
+     * <code>null</code>.
      * @throws IllegalArgumentException if the
      * current graph is null.
      */
