@@ -28,7 +28,7 @@ import java.util.Stack;
 import org.jgrapht.UndirectedGraph;
 
 /**
- * Find all simple cycles of an undirected graph using the Paton's
+ * Find a cycle basis of an undirected graph using the Paton's
  * algorithm.
  * <p/>
  * See:<br/>
@@ -46,14 +46,14 @@ public class PatonSimpleCycles<V, E>
     private UndirectedGraph<V, E> graph;
 
     /**
-     * Create a simple cycle finder with an unspecified graph.
+     * Create a cycle basis finder with an unspecified graph.
      */
     public PatonSimpleCycles()
     {
     }
 
     /**
-     * Create a simple cycle finder for the specified graph.
+     * Create a cycle basis finder for the specified graph.
      * 
      * @param graph - the DirectedGraph in which to find cycles.
      * @throws IllegalArgumentException if the graph argument is
