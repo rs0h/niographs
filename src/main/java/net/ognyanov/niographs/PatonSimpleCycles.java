@@ -116,8 +116,8 @@ public class PatonSimpleCycles<V, E>
             used.put(root, new HashSet<V>());
             stack.push(root);
             // Do the walk. It is a BFS with
-            // a FIFO instead of the usual
-            // LIFO. Thus it is easier to 
+            // a LIFO instead of the usual
+            // FIFO. Thus it is easier to 
             // find the cycles in the tree.
             while (!stack.isEmpty()) {
                 V current = stack.pop();
