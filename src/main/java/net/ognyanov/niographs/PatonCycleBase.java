@@ -17,18 +17,18 @@
 =============================================================================*/
 package net.ognyanov.niographs;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jgrapht.UndirectedGraph;
 
 /**
- * Find a cycle basis of an undirected graph using the Paton's
+ * Find a cycle base of an undirected graph using the Paton's
  * algorithm.
  * <p/>
  * See:<br/>
@@ -40,26 +40,26 @@ import org.jgrapht.UndirectedGraph;
  * @param <V> - the vertex type.
  * @param <E> - the edge type.
  */
-public class PatonSimpleCycles<V, E>
-    implements UndirectedSimpleCycles<V, E>
+public class PatonCycleBase<V, E>
+    implements UndirectedCycleBase<V, E>
 {
     private UndirectedGraph<V, E> graph;
 
     /**
-     * Create a cycle basis finder with an unspecified graph.
+     * Create a cycle base finder with an unspecified graph.
      */
-    public PatonSimpleCycles()
+    public PatonCycleBase()
     {
     }
 
     /**
-     * Create a cycle basis finder for the specified graph.
+     * Create a cycle base finder for the specified graph.
      * 
      * @param graph - the DirectedGraph in which to find cycles.
      * @throws IllegalArgumentException if the graph argument is
      *         <code>null</code>.
      */
-    public PatonSimpleCycles(UndirectedGraph<V, E> graph)
+    public PatonCycleBase(UndirectedGraph<V, E> graph)
     {
         if (graph == null) {
             throw new IllegalArgumentException("Null graph argument.");
@@ -92,14 +92,14 @@ public class PatonSimpleCycles<V, E>
      * {@inheritDoc}
      */
     @Override
-    public List<List<V>> findSimpleCycles()
+    public List<List<V>> findCycleBase()
     {
         if (graph == null) {
             throw new IllegalArgumentException("Null graph.");
         }
         Map<V, Set<V>> used = new HashMap<V, Set<V>>();
         Map<V, V> parent = new HashMap<V, V>();
-        Stack<V> stack = new Stack<V>();
+        ArrayDeque<V> stack = new ArrayDeque<V>();
         List<List<V>> cycles = new ArrayList<List<V>>();
 
         for (V root : graph.vertexSet()) {
@@ -123,29 +123,29 @@ public class PatonSimpleCycles<V, E>
                 V current = stack.pop();
                 Set<V> currentUsed = used.get(current);
                 for (E e : graph.edgesOf(current)) {
-                    V neighbour = graph.getEdgeTarget(e);
-                    if (neighbour.equals(current)) {
-                        neighbour = graph.getEdgeSource(e);
+                    V neighbor = graph.getEdgeTarget(e);
+                    if (neighbor.equals(current)) {
+                        neighbor = graph.getEdgeSource(e);
                     }
-                    if (!used.containsKey(neighbour)) {
+                    if (!used.containsKey(neighbor)) {
                         // found a new node
-                        parent.put(neighbour, current);
+                        parent.put(neighbor, current);
                         Set<V> neighbourUsed = new HashSet<V>();
                         neighbourUsed.add(current);
-                        used.put(neighbour, neighbourUsed);
-                        stack.push(neighbour);
+                        used.put(neighbor, neighbourUsed);
+                        stack.push(neighbor);
                     }
-                    else if (neighbour.equals(current)) {
+                    else if (neighbor.equals(current)) {
                         // found a self loop
                         List<V> cycle = new ArrayList<V>();
                         cycle.add(current);
                         cycles.add(cycle);
                     }
-                    else if (!currentUsed.contains(neighbour)) {
+                    else if (!currentUsed.contains(neighbor)) {
                         // found a cycle
-                        Set<V> neighbourUsed = used.get(neighbour);
+                        Set<V> neighbourUsed = used.get(neighbor);
                         List<V> cycle = new ArrayList<V>();
-                        cycle.add(neighbour);
+                        cycle.add(neighbor);
                         cycle.add(current);
                         V p = parent.get(current);
                         while (!neighbourUsed.contains(p)) {

@@ -17,6 +17,7 @@
 =============================================================================*/
 package net.ognyanov.niographs;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.StrongConnectivityInspector;
@@ -55,7 +55,7 @@ public class SzwarcfiterLauerSimpleCycles<V, E>
     private V[]                 iToV          = null;
     private Map<V, Integer>     vToI          = null;
     private Map<V, Set<V>>      bSets         = null;
-    private Stack<V>            stack         = null;
+    private ArrayDeque<V>       stack         = null;
     private Set<V>              marked        = null;
     private Map<V, Set<V>>      removed       = null;
     private int[]               position      = null;
@@ -174,11 +174,22 @@ public class SzwarcfiterLauerSimpleCycles<V, E>
             }
             else if (position[w] <= q) {
                 foundCycle = true;
-                int vIndex = stack.indexOf(vV);
-                int wIndex = stack.indexOf(wV);
                 List<V> cycle = new ArrayList<V>();
-                for (int i = wIndex; i <= vIndex; i++) {
-                    cycle.add(stack.elementAt(i));
+                Iterator<V> it = stack.descendingIterator();
+                V current = null;
+                while (it.hasNext()) {
+                    current = it.next();
+                    if (wV.equals(current)) {
+                        break;
+                    }
+                }
+                cycle.add(wV);
+                while (it.hasNext()) {
+                    current = it.next();
+                    cycle.add(current);
+                    if (current.equals(vV)) {
+                        break;
+                    }
                 }
                 cycles.add(cycle);
             }
@@ -229,7 +240,7 @@ public class SzwarcfiterLauerSimpleCycles<V, E>
         iToV = (V[]) graph.vertexSet().toArray();
         vToI = new HashMap<V, Integer>();
         bSets = new HashMap<V, Set<V>>();
-        stack = new Stack<V>();
+        stack = new ArrayDeque<V>();
         marked = new HashSet<V>();
         removed = new HashMap<V, Set<V>>();
         int size = graph.vertexSet().size();

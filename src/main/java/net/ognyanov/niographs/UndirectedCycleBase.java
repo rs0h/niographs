@@ -23,16 +23,16 @@ import org.jgrapht.UndirectedGraph;
 
 /**
  * A common interface for classes implementing algorithms
- * for finding a cycle basis of an undirected graph.
+ * for finding a cycle base of an undirected graph.
  *
  * @author Nikolay Ognyanov
  *
  * @param <V> - the vertex type.
  */
-public interface UndirectedSimpleCycles<V, E>
+public interface UndirectedCycleBase<V, E>
 {
     /**
-     * Returns the graph on which the cycle basis
+     * Returns the graph on which the cycle base
      * search algorithm is executed by this object.
      *
      * @return The graph.
@@ -40,7 +40,7 @@ public interface UndirectedSimpleCycles<V, E>
     UndirectedGraph<V, E> getGraph();
 
     /**
-     * Sets the graph on which the cycle basis
+     * Sets the graph on which the cycle base
      * search algorithm is executed by this object.
      *
      * @throws IllegalArgumentException if the
@@ -49,16 +49,16 @@ public interface UndirectedSimpleCycles<V, E>
     void setGraph(UndirectedGraph<V, E> graph);
 
     /**
-     * Finds a cycle basis of the graph.<br/>
+     * Finds a cycle base of the graph.<br/>
      * Note that the full algorithm is executed on
      * every call since the graph may have changed
      * between calls.
      *
      * @return A list of cycles constituting a cycle
-     * basis for the graph. Possibly empty but never 
+     * base for the graph. Possibly empty but never 
      * <code>null</code>.
      * @throws IllegalArgumentException if the
      * current graph is null.
      */
-    List<List<V>> findSimpleCycles();
+    List<List<V>> findCycleBase();
 }

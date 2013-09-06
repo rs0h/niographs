@@ -17,13 +17,14 @@
 =============================================================================*/
 package net.ognyanov.niographs;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jgrapht.DirectedGraph;
 
@@ -47,8 +48,8 @@ public class TarjanSimpleCycles<V, E>
 
     private List<List<V>>       cycles;
     private Set<V>              marked;
-    private Stack<V>            markedStack;
-    private Stack<V>            pointStack;
+    private ArrayDeque<V>       markedStack;
+    private ArrayDeque<V>       pointStack;
     private Map<V, Integer>     vToI;
     private Map<V, Set<V>>      removed;
 
@@ -138,10 +139,17 @@ public class TarjanSimpleCycles<V, E>
             else if (comparison == 0) {
                 foundCycle = true;
                 List<V> cycle = new ArrayList<V>();
-                int cycleStart = pointStack.indexOf(start);
-                int cycleEnd = pointStack.size() - 1;
-                for (int i = cycleStart; i <= cycleEnd; i++) {
-                    cycle.add(pointStack.get(i));
+                Iterator<V> it = pointStack.descendingIterator();
+                V v = null;
+                while (it.hasNext()) {
+                    v = it.next();
+                    if (start.equals(v)) {
+                        break;
+                    }
+                }
+                cycle.add(start);
+                while (it.hasNext()) {
+                    cycle.add(it.next());
                 }
                 cycles.add(cycle);
             }
@@ -167,8 +175,8 @@ public class TarjanSimpleCycles<V, E>
     {
         cycles = new ArrayList<List<V>>();
         marked = new HashSet<V>();
-        markedStack = new Stack<V>();
-        pointStack = new Stack<V>();
+        markedStack = new ArrayDeque<V>();
+        pointStack = new ArrayDeque<V>();
         vToI = new HashMap<V, Integer>();
         removed = new HashMap<V, Set<V>>();
         int index = 0;

@@ -17,6 +17,7 @@
 =============================================================================*/
 package net.ognyanov.niographs;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -24,7 +25,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.ClassBasedEdgeFactory;
@@ -56,14 +56,14 @@ public class JohnsonSimpleCycles<V, E>
     private Map<V, Integer>     vToI     = null;
     private Set<V>              blocked  = null;
     private Map<V, Set<V>>      bSets    = null;
-    private Stack<V>            stack    = null;
+    private ArrayDeque<V>       stack    = null;
 
     // The state of the embedded Tarjan SCC algorithm.
     private List<Set<V>>        SCCs     = null;
     private int                 index    = 0;
     private Map<V, Integer>     vIndex   = null;
     private Map<V, Integer>     vLowlink = null;
-    private Stack<V>            path     = null;
+    private ArrayDeque<V>       path     = null;
     private Set<V>              pathSet  = null;
 
     /**
@@ -346,7 +346,7 @@ public class JohnsonSimpleCycles<V, E>
         vToI = new HashMap<V, Integer>();
         blocked = new HashSet<V>();
         bSets = new HashMap<V, Set<V>>();
-        stack = new Stack<V>();
+        stack = new ArrayDeque<V>();
 
         for (int i = 0; i < iToV.length; i++) {
             vToI.put(iToV[i], i);
@@ -369,7 +369,7 @@ public class JohnsonSimpleCycles<V, E>
         SCCs = new ArrayList<Set<V>>();
         vIndex = new HashMap<V, Integer>();
         vLowlink = new HashMap<V, Integer>();
-        path = new Stack<V>();
+        path = new ArrayDeque<V>();
         pathSet = new HashSet<V>();
     }
 

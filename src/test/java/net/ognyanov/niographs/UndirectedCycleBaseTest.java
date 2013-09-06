@@ -24,7 +24,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.junit.Test;
 
-public class UndirectedSimpleCyclesTest
+public class UndirectedCycleBaseTest
 {
     private static int   MAX_SIZE = 10;
     private static int[] RESULTS  = { 0, 0, 0, 1, 3, 6, 10, 15, 21, 28, 36 };
@@ -32,14 +32,14 @@ public class UndirectedSimpleCyclesTest
     @Test
     public void test()
     {
-        PatonSimpleCycles<Integer, DefaultEdge> patonFinder =
-            new PatonSimpleCycles<Integer, DefaultEdge>();
+        PatonCycleBase<Integer, DefaultEdge> patonFinder =
+            new PatonCycleBase<Integer, DefaultEdge>();
 
         testAlgorithm(patonFinder);
     }
 
     private void testAlgorithm(
-                               UndirectedSimpleCycles<Integer, DefaultEdge>
+                               UndirectedCycleBase<Integer, DefaultEdge>
                                finder)
     {
         SimpleGraph<Integer, DefaultEdge> graph = new SimpleGraph<Integer, DefaultEdge>
@@ -97,10 +97,10 @@ public class UndirectedSimpleCyclesTest
         }
     }
 
-    private void checkResult(UndirectedSimpleCycles
+    private void checkResult(UndirectedCycleBase
                              <Integer, DefaultEdge> finder,
                              int size)
     {
-        assertTrue(finder.findSimpleCycles().size() == size);
+        assertTrue(finder.findCycleBase().size() == size);
     }
 }
